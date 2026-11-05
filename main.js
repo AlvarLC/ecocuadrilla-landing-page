@@ -43,7 +43,7 @@ if(state.volunteers.length===3){for(const [i,name]of ['Luis Ramírez','Ana Torre
 state.records ||= [];state.alerts ||= [];state.equipmentHistory ||= [];state.selectedZone ||= 'z1';state.selectedTask ||= 't1';state.selectedVolunteer ||= 'v1';
 if(state.zones.length===2){const template=state.zones[1];for(const [i,name,status,risk]of [[3,'Playa Márquez','Apta','Medio'],[4,'Bahía Blanca','No apta','Alto'],[5,'Humedal','En evaluación','Sin evaluar']])state.zones.push({...template,id:'z'+i,name,status,risk,activities:template.activities.map(a=>({...a,id:id()}))});}
 if(!state.tasks[0].activity)state.tasks[0].activity=state.zones[0].activities[0].id;
-let assignmentTemplate=null;let page='',generation=0,trainStep=1,scanMode='Ingreso';
+let assignmentTemplate=null;let page='',generation=0,trainStep=1;
 const app=$('#app'), modal=$('#modal'), mobile=matchMedia('(max-width:767px)');
 const me=()=>state.volunteers[0], zone=()=>state.zones.find(z=>z.id===state.selectedZone)||state.zones[0];
 const selected=()=>state.volunteers.find(v=>v.id===state.selectedVolunteer)||me();
@@ -95,7 +95,7 @@ function setupLanding(){
 function setup(){
  setupSidebar();
  labelButton('Volver a la landing','go:landing');labelButton('Entrar como voluntaria','role:volunteer');labelButton('Entrar como especialista','role:specialist');labelButton('Entrar como coordinadora','role:coordinator');
- const maps={w02:{Cancelar:'go:w01',Continuar:'register'},w03:{Atrás:'go:w02','Guardar borrador':'profile-draft','Guardar y continuar':'profile'},w04:{'Paso anterior':'previous-module','Confirmar capacitación':'training'},w05:{'Ver mi código QR':'go:w06','Iniciar tarea':'start'},w06:{'Descargar QR':'qr-download','Ver a pantalla completa':'qr-full'},w07:{'Guardar borrador':'zone-draft','Registrar zona':'zone-save'},w08:{'Comunicar actualización':'go:w09',Añadir:'risk-add','Guardar condiciones':'conditions'},w09:{Cancelar:'go:w08','Publicar actualización':'publish-risk','Guardar condiciones':'conditions'},w10:{Actualizar:'refresh','Escanear QR':'go:w15','Nueva tarea':'go:w12'},w11:{'Asignar a una tarea':'go:w13','Ver sus actividades':'history'},w12:{Cancelar:'go:w10','Crear tarea':'create-task'},w13:{'Asignar (2)':'assign'},w14:{'Cambiar voluntario':'choose-volunteer','Registrar devolución':'return-epp','Registrar entrega':'deliver-epp','Verificar de nuevo':'verify'},w15:{'Simular escaneo':'scan',Registrar:'access','Registrar salida':'exit'},w16:{'Sincronizar ahora':'sync'}};
+ const maps={w02:{Cancelar:'go:w01',Continuar:'register'},w03:{Atrás:'go:w02','Guardar borrador':'profile-draft','Guardar y continuar':'profile'},w04:{'Paso anterior':'previous-module','Confirmar capacitación':'training'},w05:{'Ver mi código QR':'go:w06','Iniciar tarea':'start'},w07:{'Guardar borrador':'zone-draft','Registrar zona':'zone-save'},w08:{'Comunicar actualización':'go:w09',Añadir:'risk-add','Guardar condiciones':'conditions'},w09:{Cancelar:'go:w08','Publicar actualización':'publish-risk','Guardar condiciones':'conditions'},w10:{Actualizar:'refresh','Escanear QR':'go:w15','Nueva tarea':'go:w12'},w11:{'Asignar a una tarea':'go:w13','Ver sus actividades':'history'},w12:{Cancelar:'go:w10','Crear tarea':'create-task'},w13:{'Asignar (2)':'assign'}, ...window.ecqEPP.BUTTONS, ...window.ecqAccess.BUTTONS};
  for(const [label,action]of Object.entries(maps[page]||{}))labelButton(label,action);
  if(page==='w02'){
   const v=me();for(const [label,key]of [['Nombres y apellidos *','name'],['DNI *','dni'],['Celular *','phone'],['Fecha de nacimiento *','birth'],['Distrito de residencia *','district'],['Correo electrónico (opcional)','email'],['Nombre del contacto *','contact'],['Celular del contacto *','contactPhone']])setField(label,v[key]||'');
@@ -119,7 +119,6 @@ function setup(){
   const b=buttons('Iniciar tarea')[0];if(b){b.disabled=!ready(me());if(me().status==='En curso'){text(b.querySelector('p'),'Finalizar tarea');b.dataset.action='finish';b.disabled=false;}if(me().status==='Finalizada'){text(b.querySelector('p'),'Tarea finalizada');b.disabled=true;}}
   if(me().epp.includes(2)){replace('Pide tus botas de jebe al coordinador.','EPP obligatorio completo.');replace('Podrás iniciar cuando tengas todo tu EPP.','Revisa los requisitos antes de iniciar.');}
  }
- if(page==='w06'){const target=all('[data-name="QR"]')[0];if(target){target.innerHTML=window.ecqQR('ECQ-0248');target.querySelector('svg').style.cssText='width:100%;height:100%';}replace('Playa Costa Azul · desde las 09:12',me().inside?'Dentro de '+zone().name:'Fuera de la zona');}
  if(page==='w07'){
   if(state.zoneDraft)for(const [label,value]of Object.entries(state.zoneDraft))setField(label,value);
   const label='Nivel de riesgo *';all('[data-name]').filter(e=>['Bajo','Medio','Alto'].includes(e.textContent.trim())&&e.children.length<3).forEach(el=>bind(el,'zone-risk:'+el.textContent.trim()));
@@ -148,14 +147,7 @@ function setup(){
  if(page==='w13'){
   all('[data-name]').filter(el=>state.volunteers.some(v=>v.name===el.dataset.name||v.name.startsWith(el.dataset.name+' '))).forEach(el=>{if(el.textContent.trim().length<160){const v=state.volunteers.find(v=>v.name===el.dataset.name||v.name.startsWith(el.dataset.name+' '));bind(el,'assign-option:'+v.id);}});
  }
- if(page==='w14'){
-  const v=selected();replace('María Quispe Rojas',v.name);if(v.epp.includes(2)){replace('2 de 3 entregados','3 de 3 entregados');replace('Talla 39 · sin stock en el punto A','Talla 39 · entregada');}
- }
- if(page==='w15'){
-  nativeSelect('Zona',state.zones.map(z=>[z.id,z.name]),state.selectedZone)?.addEventListener('change',e=>{state.selectedZone=e.target.value;save();});
-  caption('Ingreso','scan-mode:Ingreso');caption('Salida','scan-mode:Salida');
- }
- if(page==='w16'){replace('7 registros',state.records.filter(r=>!r.synced).length+' registros');replace('0 de 7','0 de '+state.records.filter(r=>!r.synced).length);if(!state.offline)replace('Esperando conexión','Listo para sincronizar');}
+ for(const module of modules) module.setup(page, ctx);
 }
 async function render(){
  const ticket=++generation;let requested=location.hash.slice(1)||'landing';page=requested;
@@ -175,12 +167,16 @@ function renderExtra(key){
 }
 function assignable(v,t){const r=requirements(v,t);return r.registro&&r.capacitación&&r.zona&&r.experiencia&&v.status!=='En curso';}
 function valueRequired(labels){for(const l of labels)if(!read(l)){notice('Completa el campo '+l);field(l)?.focus();return false;}return true;}
-function writeAccess(v,type){if(type==='Ingreso'){if(v.inside)return 'El voluntario ya tiene un ingreso activo.';if(!ready(v))return 'Ingreso bloqueado: completa registro, capacitación, asignación y EPP.';v.inside=true;}else{if(!v.inside)return 'El voluntario no tiene un ingreso activo.';v.inside=false;}state.records.push({id:id(),volunteer:v.id,type,zone:state.selectedZone,synced:!state.offline,time:new Date().toISOString()});return '';}
 document.addEventListener('click',event=>{
  const el=event.target.closest('[data-action]');if(!el)return;const [action,param]=el.dataset.action.split(':');
  if(action==='go'){go(param);return;}
  if(action==='close'){modal.close();return;}
  if(action==='role'){state.role=param;save();go(param==='coordinator'?'w10':param==='specialist'?'w07':'w02');return;}
+ for(const module of modules){
+  const result=module.handle(action,param,el,ctx);
+  if(result==='render'){save();render();return;}
+  if(result)return;
+ }
  switch(action){
  case 'anchor':{const suffix=mobile.matches?'':'-desktop';document.getElementById(mobile.matches?'m-'+param:param+suffix)?.scrollIntoView();return;}
  case 'download':notice('El equipo aún no ha añadido un APK publicado.');return;
@@ -224,7 +220,6 @@ document.addEventListener('click',event=>{
  }
  case 'refresh':notice('Datos locales actualizados.');break;
  case 'volunteer':state.selectedVolunteer=param;replace('María Quispe Rojas',selected().name);replace('74652318',selected().dni);setupLive();return;
- case 'epp-history':openDialog('Historial de entregas y devoluciones',state.equipmentHistory.length?state.equipmentHistory.map(h=>'<p>'+safe(state.volunteers.find(v=>v.id===h.volunteer)?.name)+' · '+safe(h.type)+' · '+safe(EPP[h.epp])+' · '+new Date(h.date).toLocaleString('es-PE')+'</p>').join(''):'<p>Aún no hay movimientos en esta sesión.</p>');return;
  case 'history':openDialog('Actividades del voluntario','<p>'+safe(selected().name)+'</p><p>'+safe(state.tasks.find(t=>t.id===selected().task)?.name||'Sin tarea asignada')+'</p>');return;
  case 'create-task':{
   if(!valueRequired(['Nombre de la tarea *','Actividad *','Zona *','Horario *']))return;const z=zone(),a=z.activities.find(a=>a.id===read('Actividad *'));if(!['Apta','Restringida'].includes(z.status)||!a?.allowed){notice('La zona o actividad no está habilitada.');return;}
@@ -234,24 +229,17 @@ document.addEventListener('click',event=>{
  case 'task-open':state.selectedTask=param;save();go('w13');return;
  case 'assign-option':{const v=state.volunteers.find(v=>v.id===param);if(!assignable(v,selectedTask())){notice('El voluntario no cumple los requisitos.');return;}el.classList.toggle('selected-control');el.dataset.assign=el.classList.contains('selected-control')?v.id:'';updateAssignment();return;}
  case 'assign':{const ids=all('[data-assign]').map(e=>e.dataset.assign).filter(Boolean);if(!ids.length){notice('Selecciona al menos un voluntario compatible.');return;}if(ids.length>selectedTask().capacity){notice('La selección supera la capacidad.');return;}ids.forEach(vId=>{const v=state.volunteers.find(v=>v.id===vId);v.task=selectedTask().id;v.status='Asignada';});save();notice('Asignación registrada.');go('w10');return;}
- case 'choose-volunteer':openDialog('Cambiar voluntario',state.volunteers.map(v=>`<p><button data-action="select-volunteer:${v.id}">${safe(v.name)}</button></p>`).join(''));return;
- case 'select-volunteer':state.selectedVolunteer=param;save();modal.close();render();return;
- case 'deliver-epp':{const v=selected(),t=state.tasks.find(t=>t.id===v.task),a=t&&state.zones.find(z=>z.id===t.zone).activities.find(a=>a.id===t.activity);if(!a){notice('Asigna una tarea primero.');return;}const missing=a.epp.filter(e=>!v.epp.includes(e));if(!missing.length){notice('El equipo ya está completo.');return;}missing.forEach(e=>{v.epp.push(e);state.equipmentHistory.push({volunteer:v.id,epp:e,type:'Entrega',date:new Date().toISOString()});});notice('Entrega de EPP registrada.');break;}
- case 'return-epp':{if(selected().inside||selected().status==='En curso'){notice('Finaliza la tarea y registra la salida antes de devolver EPP.');return;}selected().epp.forEach(e=>state.equipmentHistory.push({volunteer:selected().id,epp:e,type:'Devolución',date:new Date().toISOString()}));selected().epp=[];notice('Devolución registrada.');break;}
- case 'verify':openDialog('Verificación antes del ingreso',Object.entries(requirements(selected())).map(([k,ok])=>`<p>${ok?'✓':'△'} ${safe(k)}: ${ok?'cumplido':'pendiente'}</p>`).join(''));return;
- case 'offline':state.offline=!state.offline;notice(state.offline?'Modo sin conexión simulado.':'Conexión recuperada.');break;
- case 'scan-mode':scanMode=param;notice('Modo '+param);return;
- case 'scan':setField('Código del voluntario','ECQ-0248');notice('Credencial simulada leída.');return;
- case 'access':{if(read('Código del voluntario')!=='ECQ-0248'){notice('Credencial no encontrada.');return;}const err=writeAccess(me(),scanMode);notice(err||scanMode+' registrado'+(state.offline?' · por sincronizar':''));break;}
- case 'exit':notice(writeAccess(state.volunteers.find(v=>v.id===param)||me(),'Salida')||'Salida registrada.');break;
- case 'sync':if(state.offline){notice('Recupera la conexión para sincronizar.');return;}state.records.forEach(r=>r.synced=true);notice('Sincronización simulada completada.');break;
  case 'recommendation':state.selectedZone=param;manualForm('Recomendación de seguridad','recommendation',input('Indicación','text',zone().recommendation));return;
- case 'qr-full':openDialog('Credencial de María',window.ecqQR('ECQ-0248'));return;
- case 'qr-download':{const url=URL.createObjectURL(new Blob([window.ecqQR('ECQ-0248')],{type:'image/svg+xml'}));const a=document.createElement('a');a.href=url;a.download='ECQ-0248.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
  }
  save();render();
 });
 modal.addEventListener('submit',event=>{event.preventDefault();const form=event.target;if(!form.reportValidity())return;const f=new FormData(form),text=String(f.get('text')||'').trim();if(form.dataset.kind==='risk')zone().risks.push(text);if(form.dataset.kind==='recommendation')zone().recommendation=text;if(form.dataset.kind==='activity'){const a=zone().activities[0];if(a){a.name=String(f.get('name'));a.allowed=f.has('allowed');}else zone().activities.push({id:id(),name:String(f.get('name')),allowed:f.has('allowed'),experience:'Sin experiencia',epp:[0,1,2]});}save();modal.close();render();notice('Cambios guardados.');});
+const ctx = {
+  state, save, notice, render, openDialog, safe, EPP, modal,
+  all, text, replace, read, setField, bind, caption, nativeSelect,
+  selected, me, zone, requirements, ready, id
+};
+const modules = [window.ecqEPP, window.ecqAccess];
 window.addEventListener('hashchange',render);mobile.addEventListener('change',()=>{if(page==='landing')render();});render();
 
 function scaleLanding(){const frame=app.querySelector('.landing-frame');if(frame){const designWidth=mobile.matches?360:1440;frame.style.width=designWidth+'px';frame.style.maxWidth='none';frame.style.zoom=innerWidth/designWidth;}}
@@ -295,25 +283,7 @@ function setupLive(){
   replace('Restringida',z.status);
   const riskBox=named('Riesgos de mi zona');if(riskBox){const rows=[...riskBox.children].slice(1);cloneRows(riskBox,rows,z.risks.map(r=>row=>{const ps=all('p',row);text(ps[0],r.split(':')[0]);text(ps[1],r.split(':').slice(1).join(':')||z.recommendation);text(ps[2],z.risk);}));}
  }
- if(page==='w14'){
-  const v=selected(),t=state.tasks.find(t=>t.id===v.task),z=t&&state.zones.find(z=>z.id===t.zone),a=z?.activities.find(a=>a.id===t.activity);
-  if(a){const count=a.epp.filter(e=>v.epp.includes(e)).length;replace('2 de 3',count+' de '+a.epp.length);
-   if(ready(v)){replace('No puede ingresar a la zona','Puede ingresar a la zona');replace('Falta 1 EPP obligatorio: botas de jebe. Entrégalo y vuelve a verificar.','Registro, capacitación, asignación y EPP verificados.');}
-   const panel=named('EPP requerido');if(panel)for(const e of a.epp){const row=all('[data-name]',panel).find(r=>r.dataset.name===EPP[e]);if(row){const ps=all('p',row);text(ps[ps.length-2],v.epp.includes(e)?'Entregado':'Pendiente');}}
-  }
-  const recent=named('Entregas recientes');if(recent){bind(recent,'epp-history');for(const row of [...recent.children]){const v=state.volunteers.find(v=>v.name.startsWith(row.dataset.name));if(v)bind(row,'select-volunteer:'+v.id);}}
- }
- if(page==='w15'){
-  const table=named('Dentro de la zona'),rows=table?[...table.children].filter(e=>state.volunteers.some(v=>v.name.startsWith(e.dataset.name))):[];
-  cloneRows(table,rows,state.volunteers.filter(v=>v.inside).map(v=>row=>{row.dataset.name=v.name;const ps=all('p',row);text(ps[0],v.name.split(' ').map(n=>n[0]).slice(0,2).join(''));text(ps[1],v.name);const b=row.querySelector('[data-button]');if(b)bind(b,'exit:'+v.id);}));
-  replace('21 personas',state.volunteers.filter(v=>v.inside).length+' personas');all('p').filter(p=>p.textContent.startsWith('y 15 personas más')).forEach(p=>p.hidden=true);all('p').filter(p=>p.textContent.includes('Luis Ramírez superó su turno')||p.textContent.startsWith('Lleva más de 3 horas')).forEach(p=>p.hidden=true);
-  const success=named('Ingreso registrado')||all('[data-name]').find(e=>e.dataset.name?.startsWith('Ingreso registrado'));if(success)success.hidden=!state.records.some(r=>r.volunteer===me().id&&r.type==='Ingreso');
- }
- if(page==='w16'){
-  const table=named('Registros pendientes'),rows=table?[...table.children].filter(e=>state.volunteers.some(v=>v.name.startsWith(e.dataset.name))):[];
-  cloneRows(table,rows,state.records.filter(r=>!r.synced).map(r=>row=>{const ps=all('p',row);[r.type,state.volunteers.find(v=>v.id===r.volunteer)?.name||'Voluntario',state.zones.find(z=>z.id===r.zone)?.name||'Zona',new Date(r.time).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}),'En cola'].forEach((v,i)=>text(ps[i],v));}));
-  const n=state.records.filter(r=>!r.synced).length;replace('7 en cola',n+' en cola');replace('7 registros pendientes',n+' registros pendientes');
- }
+ for(const module of modules) module.live(page, ctx);
 }
 function updateAssignment(){
  const ids=all('[data-assign]').map(e=>e.dataset.assign).filter(Boolean);

@@ -4,7 +4,7 @@ Landing y demo web en HTML, CSS y JavaScript. Sin instalación de paquetes ni co
 
 ## Ejecutar en Windows
 
-1. Extrae el ZIP y abre la carpeta `ecocuadrilla-figma` en VS Code.
+1. Abre la carpeta del proyecto en VS Code.
 2. En la terminal de esa carpeta ejecuta:
 
 ```powershell
@@ -32,9 +32,16 @@ Referencia: Figma `f0sIxBHt0DQPAVskX8MFOa`.
 - `figma.css`: estilos de los componentes del diseño, ya compilados.
 - `styles.css`: tipografía local, contenedores y controles nativos.
 - `main.js`: interacción y datos de demostración compartidos por los tres roles.
+- `js/epp.js`: entrega, consulta, verificación y devolución de EPP.
+- `js/access.js`: credencial QR, ingresos y salidas, modo sin conexión y sincronización.
 - `qr.js`: genera el QR de demostración ECQ-0248.
 - `assets/`: SVG originales y fuentes Inter con licencia.
+- `features/`: escenarios de aceptación en Gherkin.
 - `docs/`: mapa de pantallas, historias y comprobaciones.
+
+Los módulos de `js/` se cargan antes que `main.js` y se registran en `window`,
+igual que `qr.js`. No leen variables globales: `main.js` les pasa el estado y los
+ayudantes en un objeto `ctx`. Ver `docs/integracion.md`.
 
 ## Recorrido
 
@@ -49,6 +56,16 @@ Referencia: Figma `f0sIxBHt0DQPAVskX8MFOa`.
 
 Los datos son ficticios y se guardan en `sessionStorage`: sobreviven a la recarga de la misma pestaña, y se eliminan al cerrar su sesión. No hay autenticación, servidor de datos ni sincronización real entre personas. Los videos y el APK requieren los archivos finales del equipo; sus botones informan cuando todavía no están añadidos.
 
-## Sustituir la versión anterior
+## Reparto del equipo
 
-Haz una copia de seguridad de tu carpeta actual. Copia todos los archivos y carpetas de esta entrega dentro de `D:\repos\ecocuadrilla-landing-page`, reemplazando los archivos del mismo nombre. Conserva `.git`. No mezcles el `index.html` anterior con los estilos nuevos. Este ZIP no cambia ramas ni realiza commits o push.
+| Parte | Responsable | Alcance |
+|---|---|---|
+| 1 | Alvar Lucas Córdova | Integración general y despliegue |
+| 2 | Stefano Valentino Erazo Huapaya | Landing de escritorio y móvil |
+| 3 | Luis Chaupis Romani | Registro de voluntarios y capacitación |
+| 4 | Jethro Ander Aliaga Romero | Zonas, riesgos y alertas |
+| 5 | Diego Armando Cortez Benites | Creación y asignación de tareas |
+| 6 | Daniel Ruben Gutierrez Galvez | EPP, credencial QR, accesos y sincronización |
+
+La parte 6 está en `js/epp.js`, `js/access.js`, `qr.js`, las pantallas W06, W14,
+W15 y W16, y `features/`. Su documentación está en `docs/epp-qr.md`.
