@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="52" height="32" viewBox="0 0 52 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Interruptor">
+<rect x="1" y="1" width="50" height="30" rx="15" fill="white"/>
+<rect x="1" y="1" width="50" height="30" rx="15" stroke="#455A64" stroke-width="2"/>
+<circle id="Indicador" cx="16" cy="16" r="8" fill="#455A64"/>
+</g>
+</svg>

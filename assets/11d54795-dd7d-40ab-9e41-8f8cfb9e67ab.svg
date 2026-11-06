@@ -1,0 +1,17 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="720" height="400" viewBox="0 0 720 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ilustraci&#195;&#179;n" clip-path="url(#clip0_0_567)">
+<path id="Vector" d="M0 0H250C232 60 262 110 238 170C214 230 250 290 226 340C214 368 222 386 230 400H0V0Z" fill="#0D47A1" fill-opacity="0.18"/>
+<g id="Vector_2">
+<path d="M300 0V400ZM300 120H720ZM300 280H720ZM460 0V400ZM600 0V400Z" fill="black"/>
+<path d="M300 0V400M300 120H720M300 280H720M460 0V400M600 0V400" stroke-width="3" stroke="#455A64" stroke-opacity="0.22"/>
+</g>
+<path id="Vector_3" d="M146 52C188 34 240 64 230 104C220 144 172 156 140 138C108 120 112 70 146 52Z" fill="#212121" fill-opacity="0.35"/>
+<path id="Vector_4" d="M170 318C196 300 236 312 232 336C228 360 190 366 168 352C150 340 152 330 170 318Z" fill="#212121" fill-opacity="0.3"/>
+<path id="Vector_5" d="M520 300C560 290 624 302 642 330C660 360 600 382 560 374C520 366 494 312 520 300Z" fill="#2E7D32" fill-opacity="0.2"/>
+</g>
+<defs>
+<clipPath id="clip0_0_567">
+<rect width="720" height="400" fill="white"/>
+</clipPath>
+</defs>
+</svg>
