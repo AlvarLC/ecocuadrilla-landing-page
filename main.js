@@ -242,7 +242,7 @@ const ctx = {
 const modules = [window.ecqEPP, window.ecqAccess];
 window.addEventListener('hashchange',render);mobile.addEventListener('change',()=>{if(page==='landing')render();});render();
 
-function scaleLanding(){const frame=app.querySelector('.landing-frame');if(frame){const designWidth=mobile.matches?360:1440;frame.style.width=designWidth+'px';frame.style.maxWidth='none';frame.style.zoom=innerWidth/designWidth;}}
+function scaleLanding(){const frame=app.querySelector('.landing-frame');if(frame){const designWidth=mobile.matches?360:1440;frame.style.width=designWidth+'px';frame.style.maxWidth='none';frame.style.zoom=document.documentElement.clientWidth/designWidth;}}
 window.addEventListener('resize',()=>{if(page==='landing')scaleLanding();});
 
 // Vincula los datos a las filas y tarjetas originales, sin cambiar su composición.
